@@ -5,6 +5,7 @@ import {
 } from "lucide-react";
 import { loadPetState, savePetState, DEFAULT_STATE } from "./lib/petStore";
 import { isSupabaseConfigured } from "./lib/supabaseClient";
+import leoImage from "./assets/leo.jpg";
 
 // ---- Design tokens (matches Stitch: seed #FFD93D yellow, pink secondary, green accent) ----
 const YELLOW = "#FFD93D";
@@ -14,7 +15,7 @@ const GREEN = "#5FCB8C";
 const CREAM = "#FFFBF0";
 
 const ANIMALS = [
-  { id: "dog", name: "Dog", emoji: "🐶", color: "#FFDFB8", note: "Barks joyfully" },
+  { id: "dog", name: "Dog", emoji: "🐶", color: "#FFDFB8", note: "Barks joyfully", image: leoImage },
   { id: "lion", name: "Lion", emoji: "🦁", color: "#FFE8A3", note: "Roars proudly" },
   { id: "elephant", name: "Elephant", emoji: "🐘", color: "#CDEBFB", note: "Trumpets loud" },
   { id: "duck", name: "Duck", emoji: "🦆", color: "#FFF3B0", note: "Quacks happily" },
@@ -108,6 +109,7 @@ function HomeScreen({
   animalId, onSelectAnimal,
 }) {
   const selectedAnimal = getAnimal(animalId);
+  const petImage = petPhoto || selectedAnimal.image;
   const cards = [
     { id: "hospital", label: "Dress Up Party", sub: "6 New Outfits", bg: PINK, emoji: "👗", go: "dressup" },
     { id: "jukebox", label: "Animal Jukebox", sub: "12 Catchy Tunes", bg: GREEN, emoji: "🎵", go: "sounds" },
@@ -122,10 +124,10 @@ function HomeScreen({
             onClick={onUploadClick}
             aria-label="Upload a photo of your pet"
             className="relative w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 active:scale-95 transition-transform overflow-hidden"
-            style={{ background: petPhoto ? "transparent" : "rgba(255,255,255,0.5)" }}
+            style={{ background: petImage ? "transparent" : "rgba(255,255,255,0.5)" }}
           >
-            {petPhoto ? (
-              <img src={petPhoto} alt="Your pet" className="w-full h-full object-cover" />
+            {petImage ? (
+              <img src={petImage} alt="Your pet" className="w-full h-full object-cover" />
             ) : (
               <span className="text-3xl">{selectedAnimal.emoji}</span>
             )}
@@ -227,6 +229,7 @@ function HospitalScreen({ vitality, setVitality, petName, petPhoto, animalId }) 
   const [celebrate, setCelebrate] = useState(false);
   const [pulse, setPulse] = useState(null);
   const selectedAnimal = getAnimal(animalId);
+  const petImage = petPhoto || selectedAnimal.image;
 
   const actions = [
     { key: "temp", label: "Check Temp", icon: Thermometer, bg: YELLOW, amount: 34 },
@@ -260,7 +263,14 @@ function HospitalScreen({ vitality, setVitality, petName, petPhoto, animalId }) 
         <p className="text-sm text-[#5c5340] mt-2">
           {petName} is bursting with energy and ready for new adventures!
         </p>
-        <div className="text-6xl mt-6 mb-6">{selectedAnimal.emoji}✨</div>
+        <div className="flex items-center justify-center gap-2 mt-6 mb-6">
+          {petImage ? (
+            <img src={petImage} alt={petName} className="w-24 h-24 rounded-full object-cover border-4 border-white shadow" />
+          ) : (
+            <span className="text-6xl">{selectedAnimal.emoji}</span>
+          )}
+          <span className="text-4xl">✨</span>
+        </div>
         <div className="rounded-2xl p-4 w-full" style={{ background: CREAM, border: "1px solid rgba(0,0,0,0.06)" }}>
           <p className="font-bold text-sm text-[#3a3226]">🏅 Master Caretaker</p>
           <p className="text-xs text-[#5c5340] mt-1">
@@ -294,8 +304,8 @@ function HospitalScreen({ vitality, setVitality, petName, petPhoto, animalId }) 
       </div>
 
       <div className="rounded-2xl overflow-hidden h-40 flex items-center justify-center text-6xl bg-[#EAF6FF]">
-        {petPhoto ? (
-          <img src={petPhoto} alt={petName} className="w-full h-full object-cover" />
+        {petImage ? (
+          <img src={petImage} alt={petName} className="w-full h-full object-cover" />
         ) : (
           selectedAnimal.emoji
         )}
@@ -329,11 +339,12 @@ function HospitalScreen({ vitality, setVitality, petName, petPhoto, animalId }) 
 // ---------- DRESS UP ----------
 function DressUpScreen({ equipped, toggleEquip, petName, petPhoto, animalId }) {
   const selectedAnimal = getAnimal(animalId);
+  const petImage = petPhoto || selectedAnimal.image;
   return (
     <div className="flex-1 overflow-y-auto px-4 pt-4 pb-4 space-y-4">
       <div className="rounded-2xl h-44 flex items-center justify-center relative overflow-hidden" style={{ background: "#F3E9DD" }}>
-        {petPhoto ? (
-          <img src={petPhoto} alt={petName} className="w-full h-full object-cover" />
+        {petImage ? (
+          <img src={petImage} alt={petName} className="w-full h-full object-cover" />
         ) : (
           <span className="text-7xl">{selectedAnimal.emoji}</span>
         )}
@@ -440,6 +451,7 @@ function JukeboxScreen() {
 function CareScreen({ loveMeter, setLoveMeter, petName, petPhoto, animalId }) {
   const [heartBurst, setHeartBurst] = useState(false);
   const selectedAnimal = getAnimal(animalId);
+  const petImage = petPhoto || selectedAnimal.image;
 
   const feed = () => {
     setLoveMeter((m) => Math.min(100, m + 12));
@@ -450,8 +462,8 @@ function CareScreen({ loveMeter, setLoveMeter, petName, petPhoto, animalId }) {
   return (
     <div className="flex-1 overflow-y-auto px-4 pt-4 pb-4 space-y-4">
       <div className="rounded-2xl h-52 flex items-center justify-center relative overflow-hidden" style={{ background: "#F3E9DD" }}>
-        {petPhoto ? (
-          <img src={petPhoto} alt={petName} className="w-full h-full object-cover" />
+        {petImage ? (
+          <img src={petImage} alt={petName} className="w-full h-full object-cover" />
         ) : (
           <span className="text-7xl">{selectedAnimal.emoji}</span>
         )}
