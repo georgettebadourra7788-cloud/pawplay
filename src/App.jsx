@@ -24,11 +24,14 @@ const ANIMALS = [
   { id: "monkey", name: "Monkey", emoji: "🐵", color: "#E9D2B8", note: "Chatters away" },
 ];
 
+// top/left are % positions within the Dress Up preview box, calibrated so
+// each item lands on the matching part of Leo's photo (hat on his head,
+// sunglasses over his eyes, etc).
 const WARDROBE = [
-  { id: "pirate", name: "Pirate Hat", emoji: "🏴‍☠️" },
-  { id: "sunglasses", name: "Sunglasses", emoji: "🕶️" },
-  { id: "hero", name: "Hero Cape", emoji: "🦸" },
-  { id: "bow", name: "Bow Tie", emoji: "🎀" },
+  { id: "pirate", name: "Pirate Hat", emoji: "🏴‍☠️", top: "5%", left: "48%", size: "text-3xl" },
+  { id: "sunglasses", name: "Sunglasses", emoji: "🕶️", top: "38%", left: "50%", size: "text-3xl" },
+  { id: "bow", name: "Bow Tie", emoji: "🎀", top: "72%", left: "50%", size: "text-2xl" },
+  { id: "hero", name: "Hero Cape", emoji: "🦸", top: "80%", left: "50%", size: "text-5xl" },
 ];
 
 function getAnimal(id) {
@@ -348,16 +351,18 @@ function DressUpScreen({ equipped, toggleEquip, petName, petPhoto, animalId }) {
         ) : (
           <span className="text-7xl">{selectedAnimal.emoji}</span>
         )}
-        <div className="absolute top-3 left-3 flex gap-1 flex-wrap">
-          {equipped.map((id) => {
-            const item = WARDROBE.find((w) => w.id === id);
-            return (
-              <span key={id} className="text-xl bg-white/80 rounded-full p-1">
-                {item.emoji}
-              </span>
-            );
-          })}
-        </div>
+        {equipped.map((id) => {
+          const item = WARDROBE.find((w) => w.id === id);
+          return (
+            <span
+              key={id}
+              className={`absolute ${item.size} drop-shadow-md pointer-events-none select-none`}
+              style={{ top: item.top, left: item.left, transform: "translate(-50%, -50%)" }}
+            >
+              {item.emoji}
+            </span>
+          );
+        })}
       </div>
 
       <div>
