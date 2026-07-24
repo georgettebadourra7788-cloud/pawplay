@@ -7,7 +7,7 @@ create table if not exists public.pet_state (
   love_meter integer not null default 92,
   equipped text[] not null default '{}',
   pet_photo text,
-  animal_id text not null default 'lion',
+  animal_id text not null default 'dog',
   updated_at timestamptz not null default now()
 );
 

@@ -10,7 +10,7 @@ export const DEFAULT_STATE = {
   loveMeter: 92,
   equipped: [],
   petPhoto: null,
-  animalId: "lion",
+  animalId: "dog",
 };
 
 function getDeviceId() {
@@ -52,7 +52,7 @@ export async function loadPetState() {
         loveMeter: data.love_meter,
         equipped: data.equipped ?? [],
         petPhoto: data.pet_photo ?? null,
-        animalId: data.animal_id ?? "lion",
+        animalId: data.animal_id ?? "dog",
       };
       writeLocalState(state); // keep local cache warm as an offline fallback
       return state;

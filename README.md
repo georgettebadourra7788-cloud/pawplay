@@ -8,7 +8,7 @@ care of.
 
 The app remembers, between visits:
 
-- Which animal the pet is (lion, elephant, duck, cow, frog, or monkey)
+- Which animal the pet is (dog, lion, elephant, duck, cow, frog, or monkey)
 - The uploaded pet photo
 - The Health/Vitality Meter (Pet Hospital)
 - The Love Meter (Pet & Play)

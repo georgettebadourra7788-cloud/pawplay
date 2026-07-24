@@ -14,6 +14,7 @@ const GREEN = "#5FCB8C";
 const CREAM = "#FFFBF0";
 
 const ANIMALS = [
+  { id: "dog", name: "Dog", emoji: "🐶", color: "#FFDFB8", note: "Barks joyfully" },
   { id: "lion", name: "Lion", emoji: "🦁", color: "#FFE8A3", note: "Roars proudly" },
   { id: "elephant", name: "Elephant", emoji: "🐘", color: "#CDEBFB", note: "Trumpets loud" },
   { id: "duck", name: "Duck", emoji: "🦆", color: "#FFF3B0", note: "Quacks happily" },
@@ -110,7 +111,7 @@ function HomeScreen({
   const cards = [
     { id: "hospital", label: "Dress Up Party", sub: "6 New Outfits", bg: PINK, emoji: "👗", go: "dressup" },
     { id: "jukebox", label: "Animal Jukebox", sub: "12 Catchy Tunes", bg: GREEN, emoji: "🎵", go: "sounds" },
-    { id: "hospital2", label: "Pet Hospital", sub: "Keep Buddy healthy", bg: "#FFD9E8", emoji: "🩺", go: "hospital" },
+    { id: "hospital2", label: "Pet Hospital", sub: "Keep Leo healthy", bg: "#FFD9E8", emoji: "🩺", go: "hospital" },
     { id: "play", label: "Pet & Play", sub: "Daily Care Bonus", bg: YELLOW, emoji: "🖐️", go: "care" },
   ];
   return (
@@ -499,7 +500,7 @@ export default function PawPlayPrototype() {
   const [animalId, setAnimalId] = useState(DEFAULT_STATE.animalId);
   const [uploadError, setUploadError] = useState("");
   const fileInputRef = useRef(null);
-  const petName = "Buddy";
+  const petName = "Leo";
 
   // Load persisted state once on mount (Supabase if configured, else localStorage).
   useEffect(() => {
