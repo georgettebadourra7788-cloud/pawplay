@@ -83,3 +83,12 @@ host (Vercel, Netlify, Cloudflare Pages, GitHub Pages, etc.). Remember to
 set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` as environment
 variables in your host's dashboard if you want the deployed app to use
 Supabase.
+
+### Single-file build
+
+`npm run build:single-file` produces one self-contained `dist-artifact/index.html`
+with all JS, CSS, and images inlined (no separate asset files). Useful for
+hosting a quick preview anywhere a single static file will do. Note that a
+strict-CSP host (like a Claude Artifact) will block any outbound network
+request, so a build hosted that way can only run in local-storage-only mode —
+it can't reach a real Supabase project.
