@@ -71,6 +71,18 @@ saved state (in `localStorage` and/or Supabase) — no separate file storage
 service or upload endpoint is required. Images are limited to 5MB and must
 be an image file.
 
+## Audio credits
+
+The Animal Jukebox plays a real short sound clip for each animal
+(`src/assets/sounds/`):
+
+- Duck: [Space Station 14](https://github.com/space-wizards/space-station-14)
+  (`duck_quack_happy.ogg`), CC0 1.0 — originally from freesound.org user
+  Tabby+Gus.
+- Lion, Elephant, Cow, Frog, Monkey: courtesy of
+  [Zapsplat.com](https://www.zapsplat.com), via the open-source
+  [photodentro/memory](https://github.com/photodentro/memory) project.
+
 ## Building for production
 
 ```bash
