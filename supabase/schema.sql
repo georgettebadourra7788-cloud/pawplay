@@ -8,8 +8,16 @@ create table if not exists public.pet_state (
   equipped text[] not null default '{}',
   pet_photo text,
   animal_id text not null default 'dog',
+  fetch_count integer not null default 0,
+  fetch_date text,
   updated_at timestamptz not null default now()
 );
+
+-- Safe to re-run: adds the Pet Park fetch-count columns to a table created
+-- before that feature existed (the CREATE TABLE above only applies to a
+-- brand-new table).
+alter table public.pet_state add column if not exists fetch_count integer not null default 0;
+alter table public.pet_state add column if not exists fetch_date text;
 
 alter table public.pet_state enable row level security;
 
