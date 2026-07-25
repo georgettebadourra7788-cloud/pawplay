@@ -668,10 +668,10 @@ const BANDANA_BLUE = "#3E6FE0";
 const BANDANA_BLUE_DARK = "#2A4FB8";
 const TAG_GOLD = "#E8B93B";
 
-// Modeled on Leo's real reference photo (src/assets/leo.jpg): big floppy
-// ears framing the face, large round brown eyes with a highlight, a black
-// button nose, and his signature blue bandana with the gold "LEO" tag --
-// not a generic dog silhouette.
+// Modeled on the approved "Leo standing" reference design: a big fluffy
+// head with two large floppy ears, oversized dark round eyes with a
+// double highlight, a big black button nose, a tiny tongue peek, and his
+// signature blue bandana with the gold "LEO" tag.
 function LeoBodyShape({ openMouth, children }) {
   return (
     <>
@@ -689,25 +689,29 @@ function LeoBodyShape({ openMouth, children }) {
       <circle cx="23" cy="41" r="8" fill={LEO_FUR} stroke={LEO_FUR_LINE} strokeWidth="1.2" />
       <circle cx="17" cy="33" r="6" fill={LEO_FUR} stroke={LEO_FUR_LINE} strokeWidth="1.2" />
       <path d="M80 46 L98 44 L92 66 Q86 62 80 46 Z" fill={BANDANA_BLUE} stroke={BANDANA_BLUE_DARK} strokeWidth="1" />
-      <circle cx="89" cy="62" r="3.4" fill={TAG_GOLD} stroke="#B8862A" strokeWidth="0.8" />
-      <ellipse cx="99" cy="17" rx="6" ry="11" fill={LEO_EAR} stroke={LEO_FUR_LINE} strokeWidth="1.1" transform="rotate(-14 99 17)" />
-      <circle cx="106" cy="33" r="18" fill={LEO_FUR} stroke={LEO_FUR_LINE} strokeWidth="1.5" />
+      <circle cx="89" cy="63" r="3.8" fill={TAG_GOLD} stroke="#B8862A" strokeWidth="0.8" />
+      <ellipse cx="99" cy="16" rx="7" ry="13" fill={LEO_EAR} stroke={LEO_FUR_LINE} strokeWidth="1.1" transform="rotate(-14 99 16)" />
+      <circle cx="106" cy="33" r="19" fill={LEO_FUR} stroke={LEO_FUR_LINE} strokeWidth="1.5" />
       {[
-        [94, 20, 7],
-        [106, 17, 8],
-        [117, 21, 7],
+        [93, 19, 7],
+        [106, 16, 8.5],
+        [118, 20, 7],
       ].map(([cx, cy, r], i) => (
         <circle key={`h${i}`} cx={cx} cy={cy} r={r} fill={LEO_FUR} stroke={LEO_FUR_LINE} strokeWidth="1.2" />
       ))}
-      <ellipse cx="98" cy="40" rx="8.5" ry="16" fill={LEO_EAR} stroke={LEO_FUR_LINE} strokeWidth="1.2" transform="rotate(16 98 40)" />
-      <ellipse cx="121" cy="38" rx="8" ry="6.5" fill={LEO_FUR} stroke={LEO_FUR_LINE} strokeWidth="1.2" />
-      <circle cx="112" cy="28" r="4.2" fill={LEO_EYE} />
-      <circle cx="113.3" cy="26.6" r="1.3" fill="#FFFFFF" />
-      <ellipse cx="126" cy="37" rx="3.2" ry="2.6" fill="#2b2b2b" />
+      <ellipse cx="98" cy="41" rx="10" ry="19" fill={LEO_EAR} stroke={LEO_FUR_LINE} strokeWidth="1.2" transform="rotate(16 98 41)" />
+      <ellipse cx="122" cy="38" rx="9" ry="7" fill={LEO_FUR} stroke={LEO_FUR_LINE} strokeWidth="1.2" />
+      <circle cx="112" cy="28" r="5.2" fill={LEO_EYE} />
+      <circle cx="113.6" cy="26.3" r="1.6" fill="#FFFFFF" />
+      <circle cx="110.4" cy="29.8" r="0.8" fill="#FFFFFF" opacity="0.6" />
+      <ellipse cx="127" cy="37.5" rx="4.2" ry="3.4" fill="#2b2b2b" />
       {openMouth ? (
-        <path d="M116 42 Q124 49 114 49 Q110 46 113 43 Z" fill="#E8637C" />
+        <path d="M117 43 Q126 50 115 50 Q111 47 114 44 Z" fill="#E8637C" />
       ) : (
-        <path d="M116 41 Q120 44 124 41" stroke="#2b2b2b" strokeWidth="1.3" fill="none" strokeLinecap="round" />
+        <>
+          <path d="M117 42 Q121 45 125 42" stroke="#2b2b2b" strokeWidth="1.3" fill="none" strokeLinecap="round" />
+          <path d="M118 43 Q121 48.5 124 43 Q121 45.5 118 43 Z" fill="#E8637C" />
+        </>
       )}
     </>
   );
