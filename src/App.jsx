@@ -56,9 +56,9 @@ function SunglassesIcon({ width }) {
 function BowTieIcon({ width }) {
   return (
     <svg viewBox="0 0 60 36" width={width} height={(width * 36) / 60} style={{ display: "block" }}>
-      <polygon points="2,4 28,18 2,32" fill="#E0453C" />
-      <polygon points="58,4 32,18 58,32" fill="#E0453C" />
-      <rect x="24" y="12" width="12" height="12" rx="2" fill="#B9342C" />
+      <polygon points="2,4 28,18 2,32" fill="#FF6FA5" />
+      <polygon points="58,4 32,18 58,32" fill="#FF6FA5" />
+      <rect x="24" y="12" width="12" height="12" rx="2" fill="#D6407F" />
     </svg>
   );
 }
@@ -74,16 +74,79 @@ function HeroCapeIcon({ width }) {
   );
 }
 
-// top/left are % positions within the Dress Up preview box, calibrated so
-// each item lands on the matching part of Leo's photo (hat on his head,
-// sunglasses over his eyes, etc). width is a fixed pixel size so placement
-// is identical on every device regardless of font/text scaling.
 const WARDROBE = [
-  { id: "pirate", name: "Pirate Hat", emoji: "🏴‍☠️", top: "6%", left: "50%", width: 64, Icon: PirateHatIcon },
-  { id: "sunglasses", name: "Sunglasses", emoji: "🕶️", top: "37%", left: "50%", width: 62, Icon: SunglassesIcon },
-  { id: "bow", name: "Bow Tie", emoji: "🎀", top: "66%", left: "50%", width: 40, Icon: BowTieIcon },
-  { id: "hero", name: "Hero Cape", emoji: "🦸", top: "93%", left: "50%", width: 92, Icon: HeroCapeIcon },
+  { id: "pirate", name: "Pirate Hat", emoji: "🏴‍☠️", Icon: PirateHatIcon },
+  { id: "sunglasses", name: "Sunglasses", emoji: "🕶️", Icon: SunglassesIcon },
+  { id: "bow", name: "Bow Tie", emoji: "🎀", Icon: BowTieIcon },
+  { id: "hero", name: "Hero Cape", emoji: "🦸", Icon: HeroCapeIcon },
 ];
+
+// Wardrobe item placement within the Dress Up preview box (top/left as %,
+// width in px). A real photo (Leo's default portrait or an uploaded photo,
+// for any species) fills the box edge-to-edge, so it always uses
+// WARDROBE_PHOTO_POSITIONS. Without a photo the box instead shows a single
+// centered emoji glyph -- much smaller than the box, and shaped completely
+// differently per animal (front-facing head only for lion/frog/monkey vs.
+// a side-profile full body facing left for elephant/duck/cow) -- so each
+// species needs its own calibration in WARDROBE_EMOJI_POSITIONS, measured
+// against that animal's actual glyph bounding box within the box.
+const WARDROBE_PHOTO_POSITIONS = {
+  pirate: { top: "6%", left: "50%", width: 64 },
+  sunglasses: { top: "37%", left: "50%", width: 62 },
+  bow: { top: "66%", left: "50%", width: 40 },
+  hero: { top: "93%", left: "50%", width: 92 },
+};
+
+const WARDROBE_EMOJI_POSITIONS = {
+  // Front-facing head-only glyphs: hat/sunglasses centered on the face,
+  // bow at the chin (there's no visible neck/body), cape as a small
+  // flourish peeking in at the very bottom of the box.
+  lion: {
+    pirate: { top: "23%", left: "50%", width: 34 },
+    sunglasses: { top: "40%", left: "50%", width: 32 },
+    bow: { top: "64%", left: "50%", width: 22 },
+    hero: { top: "88%", left: "50%", width: 44 },
+  },
+  frog: {
+    pirate: { top: "29%", left: "50%", width: 32 },
+    sunglasses: { top: "41%", left: "50%", width: 32 },
+    bow: { top: "60%", left: "50%", width: 20 },
+    hero: { top: "88%", left: "50%", width: 42 },
+  },
+  monkey: {
+    pirate: { top: "29%", left: "50%", width: 32 },
+    sunglasses: { top: "44%", left: "50%", width: 30 },
+    bow: { top: "62%", left: "50%", width: 20 },
+    hero: { top: "88%", left: "50%", width: 42 },
+  },
+  // Side-profile full-body glyphs facing left: head/eye sit left of
+  // center, the neck/collar is just right of the head, and the body
+  // (where a cape would drape) is further right and lower still --
+  // pulled well clear of the bow so the two don't visually merge.
+  elephant: {
+    pirate: { top: "28%", left: "45%", width: 26 },
+    sunglasses: { top: "40%", left: "45%", width: 24 },
+    bow: { top: "45%", left: "51%", width: 16 },
+    hero: { top: "56%", left: "61%", width: 30 },
+  },
+  duck: {
+    pirate: { top: "24%", left: "46%", width: 24 },
+    sunglasses: { top: "31%", left: "47%", width: 22 },
+    bow: { top: "40%", left: "46%", width: 15 },
+    hero: { top: "50%", left: "59%", width: 28 },
+  },
+  cow: {
+    pirate: { top: "30%", left: "46%", width: 26 },
+    sunglasses: { top: "40%", left: "44%", width: 24 },
+    bow: { top: "46%", left: "50%", width: 16 },
+    hero: { top: "50%", left: "60%", width: 30 },
+  },
+};
+
+function getWardrobePositions(animalId, hasPhoto) {
+  if (hasPhoto) return WARDROBE_PHOTO_POSITIONS;
+  return WARDROBE_EMOJI_POSITIONS[animalId] ?? WARDROBE_PHOTO_POSITIONS;
+}
 
 function getAnimal(id) {
   return ANIMALS.find((a) => a.id === id) ?? ANIMALS[0];
@@ -405,18 +468,20 @@ function DressUpScreen({ equipped, toggleEquip, petName, petPhoto, animalId }) {
         {equipped.map((id) => {
           const item = WARDROBE.find((w) => w.id === id);
           const Icon = item.Icon;
+          const positions = getWardrobePositions(animalId, Boolean(petImage));
+          const pos = positions[id];
           return (
             <div
               key={id}
               className="absolute pointer-events-none select-none"
               style={{
-                top: item.top,
-                left: item.left,
+                top: pos.top,
+                left: pos.left,
                 transform: "translate(-50%, -50%)",
                 filter: "drop-shadow(0 2px 3px rgba(0,0,0,0.35))",
               }}
             >
-              <Icon width={item.width} />
+              <Icon width={pos.width} />
             </div>
           );
         })}
