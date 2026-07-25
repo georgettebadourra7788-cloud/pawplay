@@ -223,7 +223,7 @@ function BottomNav({ screen, setScreen }) {
 // ---------- HOME ----------
 function HomeScreen({
   setScreen, petName, loveMeter, petPhoto, onUploadClick, onRemovePhoto,
-  animalId, onSelectAnimal,
+  animalId, onSelectAnimal, fetchCount,
 }) {
   const selectedAnimal = getAnimal(animalId);
   const petImage = petPhoto || selectedAnimal.image;
@@ -323,6 +323,20 @@ function HomeScreen({
           </button>
         ))}
       </div>
+
+      <button
+        onClick={() => setScreen("park")}
+        className="w-full rounded-2xl p-3 text-left active:scale-95 transition-transform flex items-center gap-3"
+        style={{ background: GREEN }}
+      >
+        <span className="text-2xl">🎾</span>
+        <div className="flex-1">
+          <p className="font-bold text-sm text-[#3a3226] leading-tight">Pet Park</p>
+          <p className="text-[11px] text-[#5c5340]">
+            Play fetch with {petName} · {fetchCount} today
+          </p>
+        </div>
+      </button>
 
       <div className="rounded-2xl p-3 bg-white border border-black/5 flex items-center gap-3">
         <div className="text-2xl">💛</div>
@@ -639,6 +653,101 @@ function CareScreen({ loveMeter, setLoveMeter, petName, petPhoto, animalId }) {
   );
 }
 
+// ---------- PET PARK ----------
+function PetParkScreen({ petName, petPhoto, animalId, fetchCount, onFetch }) {
+  const [stage, setStage] = useState("idle"); // idle -> throwing -> fetching -> returning -> idle
+  const selectedAnimal = getAnimal(animalId);
+  const petImage = petPhoto || selectedAnimal.image;
+  const timersRef = useRef([]);
+
+  useEffect(() => {
+    return () => timersRef.current.forEach(clearTimeout);
+  }, []);
+
+  const throwBall = () => {
+    if (stage !== "idle") return;
+    setStage("throwing");
+    timersRef.current.push(setTimeout(() => setStage("fetching"), 300));
+    timersRef.current.push(setTimeout(() => setStage("returning"), 1000));
+    timersRef.current.push(
+      setTimeout(() => {
+        setStage("idle");
+        onFetch();
+      }, 1700)
+    );
+  };
+
+  const petLeft = stage === "fetching" || stage === "returning" ? "66%" : "8%";
+  const ballLeft = stage === "idle" ? "8%" : "74%";
+  const ballVisible = stage === "throwing" || stage === "fetching";
+  const isRunning = stage === "fetching" || stage === "returning";
+  const statusText = {
+    idle: `${petName} is ready to play!`,
+    throwing: "Ball away!",
+    fetching: `${petName} is chasing it...`,
+    returning: `${petName} is bringing it back!`,
+  }[stage];
+
+  return (
+    <div className="flex-1 overflow-y-auto px-4 pt-4 pb-4 space-y-4">
+      <div className="rounded-2xl h-44 relative overflow-hidden" style={{ background: "#DCF2DE" }}>
+        <div className="absolute bottom-0 left-0 right-0 h-9" style={{ background: "#BFE6C4" }} />
+
+        <span
+          className="absolute text-3xl"
+          style={{
+            left: ballLeft,
+            bottom: "22px",
+            opacity: ballVisible ? 1 : 0,
+            transition: "left 300ms ease-out, opacity 200ms",
+          }}
+        >
+          🎾
+        </span>
+
+        <div
+          className={`absolute w-16 h-16 rounded-2xl overflow-hidden flex items-center justify-center ${isRunning ? "animate-bounce" : ""}`}
+          style={{ left: petLeft, bottom: "8px", transition: "left 650ms ease-in-out" }}
+        >
+          {petImage ? (
+            <img src={petImage} alt={petName} className="w-full h-full object-cover" />
+          ) : (
+            <span className="text-5xl">{selectedAnimal.emoji}</span>
+          )}
+        </div>
+
+        <div className="absolute top-3 left-3 right-3 bg-white/85 rounded-xl px-3 py-2">
+          <p className="text-xs font-bold text-[#3a3226]">{statusText}</p>
+        </div>
+      </div>
+
+      <div className="rounded-2xl p-4 bg-white border border-black/5 flex items-center gap-3">
+        <div className="text-2xl">🏆</div>
+        <div className="flex-1">
+          <p className="text-xs font-bold text-[#3a3226]">Fetches today</p>
+          <p className="text-2xl font-extrabold" style={{ color: GREEN }}>
+            {fetchCount}
+          </p>
+        </div>
+      </div>
+
+      <button
+        onClick={throwBall}
+        disabled={stage !== "idle"}
+        className={`w-full rounded-2xl py-3 font-bold text-sm transition-transform ${
+          stage === "idle" ? "active:scale-95" : "opacity-60"
+        }`}
+        style={{ background: YELLOW, color: "#3a3226" }}
+      >
+        {stage === "idle" ? "🎾 Throw Ball" : "Fetching..."}
+      </button>
+      <p className="text-center text-[11px] text-[#9c9483]">
+        Play fetch with {petName} at the Pet Park!
+      </p>
+    </div>
+  );
+}
+
 export default function PawPlayPrototype() {
   const [loaded, setLoaded] = useState(false);
   const [screen, setScreen] = useState("home");
@@ -647,6 +756,8 @@ export default function PawPlayPrototype() {
   const [loveMeter, setLoveMeter] = useState(DEFAULT_STATE.loveMeter);
   const [petPhoto, setPetPhoto] = useState(DEFAULT_STATE.petPhoto);
   const [animalId, setAnimalId] = useState(DEFAULT_STATE.animalId);
+  const [fetchCount, setFetchCount] = useState(DEFAULT_STATE.fetchCount);
+  const [fetchDate, setFetchDate] = useState(DEFAULT_STATE.fetchDate);
   const [uploadError, setUploadError] = useState("");
   const fileInputRef = useRef(null);
   const petName = "Leo";
@@ -661,6 +772,12 @@ export default function PawPlayPrototype() {
       setLoveMeter(state.loveMeter);
       setPetPhoto(state.petPhoto);
       setAnimalId(state.animalId);
+      // The fetch count is "today's" count: if the saved date isn't today,
+      // start the display back at 0 rather than carrying over an old day's
+      // total.
+      const today = new Date().toDateString();
+      setFetchCount(state.fetchDate === today ? state.fetchCount : 0);
+      setFetchDate(state.fetchDate === today ? state.fetchDate : today);
       setLoaded(true);
     });
     return () => {
@@ -671,11 +788,16 @@ export default function PawPlayPrototype() {
   // Persist any state change after the initial load has completed.
   useEffect(() => {
     if (!loaded) return;
-    savePetState({ vitality, loveMeter, equipped, petPhoto, animalId });
-  }, [loaded, vitality, loveMeter, equipped, petPhoto, animalId]);
+    savePetState({ vitality, loveMeter, equipped, petPhoto, animalId, fetchCount, fetchDate });
+  }, [loaded, vitality, loveMeter, equipped, petPhoto, animalId, fetchCount, fetchDate]);
 
   const toggleEquip = (id) => {
     setEquipped((eq) => (eq.includes(id) ? eq.filter((x) => x !== id) : [...eq, id]));
+  };
+
+  const handleFetch = () => {
+    setFetchCount((c) => c + 1);
+    setFetchDate(new Date().toDateString());
   };
 
   const handleUploadClick = () => {
@@ -711,6 +833,7 @@ export default function PawPlayPrototype() {
     sounds: "Animal Jukebox",
     hospital: "Pet Hospital",
     care: "Pet & Play",
+    park: "Pet Park",
   };
 
   if (!loaded) {
@@ -757,6 +880,7 @@ export default function PawPlayPrototype() {
           onRemovePhoto={handleRemovePhoto}
           animalId={animalId}
           onSelectAnimal={setAnimalId}
+          fetchCount={fetchCount}
         />
       )}
       {screen === "hospital" && (
@@ -768,6 +892,9 @@ export default function PawPlayPrototype() {
       {screen === "sounds" && <JukeboxScreen />}
       {screen === "care" && (
         <CareScreen loveMeter={loveMeter} setLoveMeter={setLoveMeter} petName={petName} petPhoto={petPhoto} animalId={animalId} />
+      )}
+      {screen === "park" && (
+        <PetParkScreen petName={petName} petPhoto={petPhoto} animalId={animalId} fetchCount={fetchCount} onFetch={handleFetch} />
       )}
       <BottomNav screen={screen} setScreen={setScreen} />
     </PhoneShell>

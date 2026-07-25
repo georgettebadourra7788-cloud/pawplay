@@ -11,6 +11,8 @@ export const DEFAULT_STATE = {
   equipped: [],
   petPhoto: null,
   animalId: "dog",
+  fetchCount: 0,
+  fetchDate: null,
 };
 
 function getDeviceId() {
@@ -53,6 +55,8 @@ export async function loadPetState() {
         equipped: data.equipped ?? [],
         petPhoto: data.pet_photo ?? null,
         animalId: DEFAULT_STATE.animalId,
+        fetchCount: data.fetch_count ?? 0,
+        fetchDate: data.fetch_date ?? null,
       };
       writeLocalState(state); // keep local cache warm as an offline fallback
       return state;
@@ -88,6 +92,8 @@ export function savePetState(state) {
           equipped: state.equipped,
           pet_photo: state.petPhoto,
           animal_id: state.animalId,
+          fetch_count: state.fetchCount,
+          fetch_date: state.fetchDate,
           updated_at: new Date().toISOString(),
         },
         { onConflict: "device_id" }
