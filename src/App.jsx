@@ -654,8 +654,92 @@ function CareScreen({ loveMeter, setLoveMeter, petName, petPhoto, animalId }) {
 }
 
 // ---------- PET PARK ----------
+// Simple flat-vector illustrations of Leo (a small fluffy white Maltese,
+// floppy ears) for the running animation -- deliberately simpler/more
+// cartoon than the realistic portrait used elsewhere, in the same
+// hand-drawn-shape style as the wardrobe icons. A shared body/head/ear/
+// tail silhouette with swappable legs gives a 2-frame gallop cycle plus
+// a leaping catch pose.
+const LEO_FUR = "#F8F6F1";
+const LEO_FUR_LINE = "#DAD4C6";
+const LEO_EAR = "#EDE6D6";
+
+function LeoBodyShape({ openMouth, children }) {
+  return (
+    <>
+      {children}
+      <ellipse cx="63" cy="50" rx="34" ry="19" fill={LEO_FUR} stroke={LEO_FUR_LINE} strokeWidth="1.5" />
+      {[
+        [38, 34, 9],
+        [52, 27, 10],
+        [67, 25, 10],
+        [81, 28, 9],
+        [92, 34, 8],
+      ].map(([cx, cy, r], i) => (
+        <circle key={`b${i}`} cx={cx} cy={cy} r={r} fill={LEO_FUR} stroke={LEO_FUR_LINE} strokeWidth="1.2" />
+      ))}
+      <circle cx="24" cy="40" r="8" fill={LEO_FUR} stroke={LEO_FUR_LINE} strokeWidth="1.2" />
+      <circle cx="18" cy="32" r="6" fill={LEO_FUR} stroke={LEO_FUR_LINE} strokeWidth="1.2" />
+      <ellipse cx="97" cy="40" rx="7" ry="14" fill={LEO_EAR} stroke={LEO_FUR_LINE} strokeWidth="1.2" transform="rotate(18 97 40)" />
+      <circle cx="103" cy="33" r="16" fill={LEO_FUR} stroke={LEO_FUR_LINE} strokeWidth="1.5" />
+      {[
+        [92, 22, 7],
+        [103, 18, 7],
+        [113, 22, 6],
+      ].map(([cx, cy, r], i) => (
+        <circle key={`h${i}`} cx={cx} cy={cy} r={r} fill={LEO_FUR} stroke={LEO_FUR_LINE} strokeWidth="1.2" />
+      ))}
+      <ellipse cx="116" cy="37" rx="7" ry="6" fill={LEO_FUR} stroke={LEO_FUR_LINE} strokeWidth="1.2" />
+      <circle cx="107" cy="30" r="2.2" fill="#2b2b2b" />
+      <ellipse cx="121" cy="35" rx="2.3" ry="1.8" fill="#2b2b2b" />
+      {openMouth ? (
+        <path d="M112 39 Q120 46 111 46 Q107 44 110 40 Z" fill="#E8637C" />
+      ) : (
+        <path d="M112 39 Q117 42 121 39" stroke="#2b2b2b" strokeWidth="1.3" fill="none" strokeLinecap="round" />
+      )}
+    </>
+  );
+}
+
+function LeoRunPoseA({ width }) {
+  return (
+    <svg viewBox="0 0 140 90" width={width} height={(width * 90) / 140} style={{ display: "block" }}>
+      <LeoBodyShape>
+        <rect x="82" y="56" width="9" height="26" rx="4.5" fill={LEO_FUR} stroke={LEO_FUR_LINE} strokeWidth="1.2" transform="rotate(18 86 56)" />
+        <rect x="34" y="56" width="9" height="26" rx="4.5" fill={LEO_FUR} stroke={LEO_FUR_LINE} strokeWidth="1.2" transform="rotate(-18 38 56)" />
+      </LeoBodyShape>
+    </svg>
+  );
+}
+
+function LeoRunPoseB({ width }) {
+  return (
+    <svg viewBox="0 0 140 90" width={width} height={(width * 90) / 140} style={{ display: "block" }}>
+      <LeoBodyShape>
+        <rect x="70" y="58" width="9" height="24" rx="4.5" fill={LEO_FUR} stroke={LEO_FUR_LINE} strokeWidth="1.2" />
+        <rect x="52" y="58" width="9" height="24" rx="4.5" fill={LEO_FUR} stroke={LEO_FUR_LINE} strokeWidth="1.2" />
+      </LeoBodyShape>
+    </svg>
+  );
+}
+
+function LeoCatchPose({ width }) {
+  return (
+    <svg viewBox="0 0 140 90" width={width} height={(width * 90) / 140} style={{ display: "block" }}>
+      <g transform="rotate(-12 65 50)">
+        <LeoBodyShape openMouth>
+          <rect x="70" y="58" width="9" height="20" rx="4.5" fill={LEO_FUR} stroke={LEO_FUR_LINE} strokeWidth="1.2" />
+          <rect x="52" y="58" width="9" height="20" rx="4.5" fill={LEO_FUR} stroke={LEO_FUR_LINE} strokeWidth="1.2" />
+        </LeoBodyShape>
+      </g>
+    </svg>
+  );
+}
+
 function PetParkScreen({ petName, petPhoto, animalId, fetchCount, onFetch }) {
-  const [stage, setStage] = useState("idle"); // idle -> throwing -> fetching -> returning -> idle
+  // idle -> throwing -> fetching -> catching -> returning -> idle
+  const [stage, setStage] = useState("idle");
+  const [runFrame, setRunFrame] = useState(0);
   const selectedAnimal = getAnimal(animalId);
   const petImage = petPhoto || selectedAnimal.image;
   const timersRef = useRef([]);
@@ -664,29 +748,61 @@ function PetParkScreen({ petName, petPhoto, animalId, fetchCount, onFetch }) {
     return () => timersRef.current.forEach(clearTimeout);
   }, []);
 
+  const isRunning = stage === "fetching" || stage === "returning";
+
+  // Alternate between the two gallop frames while running, so the
+  // illustrated poses actually animate instead of sliding statically.
+  useEffect(() => {
+    if (!isRunning) return;
+    const id = setInterval(() => setRunFrame((f) => (f === 0 ? 1 : 0)), 160);
+    return () => clearInterval(id);
+  }, [isRunning]);
+
   const throwBall = () => {
     if (stage !== "idle") return;
     setStage("throwing");
     timersRef.current.push(setTimeout(() => setStage("fetching"), 300));
-    timersRef.current.push(setTimeout(() => setStage("returning"), 1000));
+    timersRef.current.push(setTimeout(() => setStage("catching"), 1000));
+    timersRef.current.push(setTimeout(() => setStage("returning"), 1300));
     timersRef.current.push(
       setTimeout(() => {
         setStage("idle");
         onFetch();
-      }, 1700)
+      }, 2000)
     );
   };
 
-  const petLeft = stage === "fetching" || stage === "returning" ? "66%" : "8%";
-  const ballLeft = stage === "idle" ? "8%" : "74%";
+  const petLeft = stage === "fetching" || stage === "catching" || stage === "returning" ? "62%" : "8%";
+  const ballLeft = stage === "idle" ? "8%" : "70%";
   const ballVisible = stage === "throwing" || stage === "fetching";
-  const isRunning = stage === "fetching" || stage === "returning";
   const statusText = {
     idle: `${petName} is ready to play!`,
     throwing: "Ball away!",
     fetching: `${petName} is chasing it...`,
+    catching: `${petName} got it!`,
     returning: `${petName} is bringing it back!`,
   }[stage];
+
+  // The illustrated running/catch poses are Leo-specific (a fluffy white
+  // Maltese); other emoji species keep the simple bounce they already had.
+  const showLeoPoses = Boolean(petImage);
+
+  let petVisual;
+  if (showLeoPoses && stage === "catching") {
+    petVisual = <LeoCatchPose width={72} />;
+  } else if (showLeoPoses && isRunning) {
+    petVisual = runFrame === 0 ? <LeoRunPoseA width={72} /> : <LeoRunPoseB width={72} />;
+  } else if (petImage) {
+    petVisual = (
+      <div className="w-16 h-16 rounded-2xl overflow-hidden flex items-center justify-center">
+        <img src={petImage} alt={petName} className="w-full h-full object-cover" />
+      </div>
+    );
+  } else {
+    petVisual = (
+      <span className={`text-5xl ${isRunning ? "animate-bounce" : ""}`}>{selectedAnimal.emoji}</span>
+    );
+  }
 
   return (
     <div className="flex-1 overflow-y-auto px-4 pt-4 pb-4 space-y-4">
@@ -706,14 +822,15 @@ function PetParkScreen({ petName, petPhoto, animalId, fetchCount, onFetch }) {
         </span>
 
         <div
-          className={`absolute w-16 h-16 rounded-2xl overflow-hidden flex items-center justify-center ${isRunning ? "animate-bounce" : ""}`}
-          style={{ left: petLeft, bottom: "8px", transition: "left 650ms ease-in-out" }}
+          className="absolute flex items-end justify-center"
+          style={{
+            left: petLeft,
+            bottom: "8px",
+            transition: "left 650ms ease-in-out",
+            transform: stage === "returning" ? "scaleX(-1)" : "none",
+          }}
         >
-          {petImage ? (
-            <img src={petImage} alt={petName} className="w-full h-full object-cover" />
-          ) : (
-            <span className="text-5xl">{selectedAnimal.emoji}</span>
-          )}
+          {petVisual}
         </div>
 
         <div className="absolute top-3 left-3 right-3 bg-white/85 rounded-xl px-3 py-2">
