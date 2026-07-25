@@ -663,39 +663,51 @@ function CareScreen({ loveMeter, setLoveMeter, petName, petPhoto, animalId }) {
 const LEO_FUR = "#F8F6F1";
 const LEO_FUR_LINE = "#DAD4C6";
 const LEO_EAR = "#EDE6D6";
+const LEO_EYE = "#4A2F1E";
+const BANDANA_BLUE = "#3E6FE0";
+const BANDANA_BLUE_DARK = "#2A4FB8";
+const TAG_GOLD = "#E8B93B";
 
+// Modeled on Leo's real reference photo (src/assets/leo.jpg): big floppy
+// ears framing the face, large round brown eyes with a highlight, a black
+// button nose, and his signature blue bandana with the gold "LEO" tag --
+// not a generic dog silhouette.
 function LeoBodyShape({ openMouth, children }) {
   return (
     <>
       {children}
-      <ellipse cx="63" cy="50" rx="34" ry="19" fill={LEO_FUR} stroke={LEO_FUR_LINE} strokeWidth="1.5" />
+      <ellipse cx="62" cy="52" rx="34" ry="20" fill={LEO_FUR} stroke={LEO_FUR_LINE} strokeWidth="1.5" />
       {[
-        [38, 34, 9],
-        [52, 27, 10],
-        [67, 25, 10],
-        [81, 28, 9],
-        [92, 34, 8],
+        [36, 36, 9],
+        [50, 28, 10],
+        [65, 25, 10],
+        [79, 28, 9],
+        [91, 35, 8],
       ].map(([cx, cy, r], i) => (
         <circle key={`b${i}`} cx={cx} cy={cy} r={r} fill={LEO_FUR} stroke={LEO_FUR_LINE} strokeWidth="1.2" />
       ))}
-      <circle cx="24" cy="40" r="8" fill={LEO_FUR} stroke={LEO_FUR_LINE} strokeWidth="1.2" />
-      <circle cx="18" cy="32" r="6" fill={LEO_FUR} stroke={LEO_FUR_LINE} strokeWidth="1.2" />
-      <ellipse cx="97" cy="40" rx="7" ry="14" fill={LEO_EAR} stroke={LEO_FUR_LINE} strokeWidth="1.2" transform="rotate(18 97 40)" />
-      <circle cx="103" cy="33" r="16" fill={LEO_FUR} stroke={LEO_FUR_LINE} strokeWidth="1.5" />
+      <circle cx="23" cy="41" r="8" fill={LEO_FUR} stroke={LEO_FUR_LINE} strokeWidth="1.2" />
+      <circle cx="17" cy="33" r="6" fill={LEO_FUR} stroke={LEO_FUR_LINE} strokeWidth="1.2" />
+      <path d="M80 46 L98 44 L92 66 Q86 62 80 46 Z" fill={BANDANA_BLUE} stroke={BANDANA_BLUE_DARK} strokeWidth="1" />
+      <circle cx="89" cy="62" r="3.4" fill={TAG_GOLD} stroke="#B8862A" strokeWidth="0.8" />
+      <ellipse cx="99" cy="17" rx="6" ry="11" fill={LEO_EAR} stroke={LEO_FUR_LINE} strokeWidth="1.1" transform="rotate(-14 99 17)" />
+      <circle cx="106" cy="33" r="18" fill={LEO_FUR} stroke={LEO_FUR_LINE} strokeWidth="1.5" />
       {[
-        [92, 22, 7],
-        [103, 18, 7],
-        [113, 22, 6],
+        [94, 20, 7],
+        [106, 17, 8],
+        [117, 21, 7],
       ].map(([cx, cy, r], i) => (
         <circle key={`h${i}`} cx={cx} cy={cy} r={r} fill={LEO_FUR} stroke={LEO_FUR_LINE} strokeWidth="1.2" />
       ))}
-      <ellipse cx="116" cy="37" rx="7" ry="6" fill={LEO_FUR} stroke={LEO_FUR_LINE} strokeWidth="1.2" />
-      <circle cx="107" cy="30" r="2.2" fill="#2b2b2b" />
-      <ellipse cx="121" cy="35" rx="2.3" ry="1.8" fill="#2b2b2b" />
+      <ellipse cx="98" cy="40" rx="8.5" ry="16" fill={LEO_EAR} stroke={LEO_FUR_LINE} strokeWidth="1.2" transform="rotate(16 98 40)" />
+      <ellipse cx="121" cy="38" rx="8" ry="6.5" fill={LEO_FUR} stroke={LEO_FUR_LINE} strokeWidth="1.2" />
+      <circle cx="112" cy="28" r="4.2" fill={LEO_EYE} />
+      <circle cx="113.3" cy="26.6" r="1.3" fill="#FFFFFF" />
+      <ellipse cx="126" cy="37" rx="3.2" ry="2.6" fill="#2b2b2b" />
       {openMouth ? (
-        <path d="M112 39 Q120 46 111 46 Q107 44 110 40 Z" fill="#E8637C" />
+        <path d="M116 42 Q124 49 114 49 Q110 46 113 43 Z" fill="#E8637C" />
       ) : (
-        <path d="M112 39 Q117 42 121 39" stroke="#2b2b2b" strokeWidth="1.3" fill="none" strokeLinecap="round" />
+        <path d="M116 41 Q120 44 124 41" stroke="#2b2b2b" strokeWidth="1.3" fill="none" strokeLinecap="round" />
       )}
     </>
   );
@@ -772,7 +784,11 @@ function PetParkScreen({ petName, petPhoto, animalId, fetchCount, onFetch }) {
     );
   };
 
-  const petLeft = stage === "fetching" || stage === "catching" || stage === "returning" ? "62%" : "8%";
+  // "returning" must NOT stay at 62%: the leftward slide has to happen
+  // while stage is still "returning" (so the illustrated running poses are
+  // showing), not only once stage flips to "idle" and the static photo
+  // takes back over.
+  const petLeft = stage === "fetching" || stage === "catching" ? "62%" : "8%";
   const ballLeft = stage === "idle" ? "8%" : "70%";
   const ballVisible = stage === "throwing" || stage === "fetching";
   const statusText = {
