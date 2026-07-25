@@ -24,14 +24,59 @@ const ANIMALS = [
   { id: "monkey", name: "Monkey", emoji: "🐵", color: "#E9D2B8", note: "Chatters away" },
 ];
 
+// Rendered as SVG (not emoji) for the on-pet overlay: emoji glyphs are drawn
+// by the OS/browser's own font and vary in size and vertical anchor across
+// platforms (iOS vs Android vs desktop), which was throwing off the
+// calibrated placement on real phones even though it looked right in
+// testing. An SVG has fixed, identical geometry everywhere.
+function PirateHatIcon({ width }) {
+  return (
+    <svg viewBox="0 0 64 40" width={width} height={(width * 40) / 64} style={{ display: "block" }}>
+      <ellipse cx="32" cy="32" rx="30" ry="7" fill="#2b2b2b" />
+      <path d="M10 30 Q10 6 32 6 Q54 6 54 30 Z" fill="#2b2b2b" />
+      <rect x="8" y="26" width="48" height="6" rx="3" fill="#D64545" />
+    </svg>
+  );
+}
+function SunglassesIcon({ width }) {
+  return (
+    <svg viewBox="0 0 64 24" width={width} height={(width * 24) / 64} style={{ display: "block" }}>
+      <rect x="2" y="4" width="24" height="16" rx="8" fill="#1a1a1a" />
+      <rect x="38" y="4" width="24" height="16" rx="8" fill="#1a1a1a" />
+      <rect x="26" y="10" width="12" height="4" fill="#1a1a1a" />
+    </svg>
+  );
+}
+function BowTieIcon({ width }) {
+  return (
+    <svg viewBox="0 0 60 36" width={width} height={(width * 36) / 60} style={{ display: "block" }}>
+      <polygon points="2,4 28,18 2,32" fill="#E0453C" />
+      <polygon points="58,4 32,18 58,32" fill="#E0453C" />
+      <rect x="24" y="12" width="12" height="12" rx="2" fill="#B9342C" />
+    </svg>
+  );
+}
+// A cape is worn on the back, so front-on it should only read as a short
+// flared collar with a clasp -- not a full frontal shape (that looked like
+// a bib and swallowed the rest of the outfit).
+function HeroCapeIcon({ width }) {
+  return (
+    <svg viewBox="0 0 100 30" width={width} height={(width * 30) / 100} style={{ display: "block" }}>
+      <path d="M4 6 Q30 -3 50 2 Q70 -3 96 6 L82 28 Q50 18 18 28 Z" fill="#E0453C" />
+      <rect x="41" y="0" width="18" height="7" rx="3" fill={YELLOW_DARK} />
+    </svg>
+  );
+}
+
 // top/left are % positions within the Dress Up preview box, calibrated so
 // each item lands on the matching part of Leo's photo (hat on his head,
-// sunglasses over his eyes, etc).
+// sunglasses over his eyes, etc). width is a fixed pixel size so placement
+// is identical on every device regardless of font/text scaling.
 const WARDROBE = [
-  { id: "pirate", name: "Pirate Hat", emoji: "🏴‍☠️", top: "5%", left: "48%", size: "text-3xl" },
-  { id: "sunglasses", name: "Sunglasses", emoji: "🕶️", top: "38%", left: "50%", size: "text-3xl" },
-  { id: "bow", name: "Bow Tie", emoji: "🎀", top: "72%", left: "50%", size: "text-2xl" },
-  { id: "hero", name: "Hero Cape", emoji: "🦸", top: "80%", left: "50%", size: "text-5xl" },
+  { id: "pirate", name: "Pirate Hat", emoji: "🏴‍☠️", top: "6%", left: "50%", width: 64, Icon: PirateHatIcon },
+  { id: "sunglasses", name: "Sunglasses", emoji: "🕶️", top: "37%", left: "50%", width: 62, Icon: SunglassesIcon },
+  { id: "bow", name: "Bow Tie", emoji: "🎀", top: "66%", left: "50%", width: 40, Icon: BowTieIcon },
+  { id: "hero", name: "Hero Cape", emoji: "🦸", top: "93%", left: "50%", width: 92, Icon: HeroCapeIcon },
 ];
 
 function getAnimal(id) {
@@ -353,14 +398,20 @@ function DressUpScreen({ equipped, toggleEquip, petName, petPhoto, animalId }) {
         )}
         {equipped.map((id) => {
           const item = WARDROBE.find((w) => w.id === id);
+          const Icon = item.Icon;
           return (
-            <span
+            <div
               key={id}
-              className={`absolute ${item.size} drop-shadow-md pointer-events-none select-none`}
-              style={{ top: item.top, left: item.left, transform: "translate(-50%, -50%)" }}
+              className="absolute pointer-events-none select-none"
+              style={{
+                top: item.top,
+                left: item.left,
+                transform: "translate(-50%, -50%)",
+                filter: "drop-shadow(0 2px 3px rgba(0,0,0,0.35))",
+              }}
             >
-              {item.emoji}
-            </span>
+              <Icon width={item.width} />
+            </div>
           );
         })}
       </div>

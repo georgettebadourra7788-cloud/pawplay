@@ -52,14 +52,19 @@ export async function loadPetState() {
         loveMeter: data.love_meter,
         equipped: data.equipped ?? [],
         petPhoto: data.pet_photo ?? null,
-        animalId: data.animal_id ?? "dog",
+        animalId: DEFAULT_STATE.animalId,
       };
       writeLocalState(state); // keep local cache warm as an offline fallback
       return state;
     }
   }
 
-  return readLocalState();
+  // animalId is intentionally never restored from saved state: Leo (the
+  // dog) is always the pet shown on load, for every visitor, on every
+  // visit -- no previously saved (or stale/pre-Leo) selection can override
+  // that. The species picker still works live within a session; it just
+  // never persists across reloads.
+  return { ...readLocalState(), animalId: DEFAULT_STATE.animalId };
 }
 
 let saveTimer = null;
