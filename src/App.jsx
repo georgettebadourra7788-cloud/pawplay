@@ -6,6 +6,12 @@ import {
 import { loadPetState, savePetState, DEFAULT_STATE } from "./lib/petStore";
 import { isSupabaseConfigured } from "./lib/supabaseClient";
 import leoImage from "./assets/leo.jpg";
+import lionSound from "./assets/sounds/lion.mp3";
+import elephantSound from "./assets/sounds/elephant.mp3";
+import duckSound from "./assets/sounds/duck.ogg";
+import cowSound from "./assets/sounds/cow.mp3";
+import frogSound from "./assets/sounds/frog.mp3";
+import monkeySound from "./assets/sounds/monkey.mp3";
 
 // ---- Design tokens (matches Stitch: seed #FFD93D yellow, pink secondary, green accent) ----
 const YELLOW = "#FFD93D";
@@ -16,12 +22,12 @@ const CREAM = "#FFFBF0";
 
 const ANIMALS = [
   { id: "dog", name: "Dog", emoji: "🐶", color: "#FFDFB8", note: "Barks joyfully", image: leoImage },
-  { id: "lion", name: "Lion", emoji: "🦁", color: "#FFE8A3", note: "Roars proudly" },
-  { id: "elephant", name: "Elephant", emoji: "🐘", color: "#CDEBFB", note: "Trumpets loud" },
-  { id: "duck", name: "Duck", emoji: "🦆", color: "#FFF3B0", note: "Quacks happily" },
-  { id: "cow", name: "Cow", emoji: "🐄", color: "#E3D9CF", note: "Moos gently" },
-  { id: "frog", name: "Frog", emoji: "🐸", color: "#C9EFD1", note: "Ribbits with a hop" },
-  { id: "monkey", name: "Monkey", emoji: "🐵", color: "#E9D2B8", note: "Chatters away" },
+  { id: "lion", name: "Lion", emoji: "🦁", color: "#FFE8A3", note: "Roars proudly", sound: lionSound },
+  { id: "elephant", name: "Elephant", emoji: "🐘", color: "#CDEBFB", note: "Trumpets loud", sound: elephantSound },
+  { id: "duck", name: "Duck", emoji: "🦆", color: "#FFF3B0", note: "Quacks happily", sound: duckSound },
+  { id: "cow", name: "Cow", emoji: "🐄", color: "#E3D9CF", note: "Moos gently", sound: cowSound },
+  { id: "frog", name: "Frog", emoji: "🐸", color: "#C9EFD1", note: "Ribbits with a hop", sound: frogSound },
+  { id: "monkey", name: "Monkey", emoji: "🐵", color: "#E9D2B8", note: "Chatters away", sound: monkeySound },
 ];
 
 // Rendered as SVG (not emoji) for the on-pet overlay: emoji glyphs are drawn
@@ -453,12 +459,22 @@ function DressUpScreen({ equipped, toggleEquip, petName, petPhoto, animalId }) {
 // ---------- ANIMAL JUKEBOX ----------
 function JukeboxScreen() {
   const [playing, setPlaying] = useState(null);
+  const audioRef = useRef(null);
   const timeoutRef = useRef(null);
 
-  const play = (id) => {
-    setPlaying(id);
+  const jukeboxAnimals = ANIMALS.filter((a) => a.sound);
+
+  const play = (animal) => {
+    if (audioRef.current) audioRef.current.pause();
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    timeoutRef.current = setTimeout(() => setPlaying(null), 1400);
+
+    setPlaying(animal.id);
+    const audio = new Audio(animal.sound);
+    audioRef.current = audio;
+    audio.addEventListener("ended", () => setPlaying(null));
+    audio.play().catch(() => {});
+    // Fallback in case playback is blocked or the "ended" event never fires.
+    timeoutRef.current = setTimeout(() => setPlaying(null), 3000);
   };
 
   return (
@@ -469,12 +485,12 @@ function JukeboxScreen() {
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        {ANIMALS.map((a) => {
+        {jukeboxAnimals.map((a) => {
           const isPlaying = playing === a.id;
           return (
             <button
               key={a.id}
-              onClick={() => play(a.id)}
+              onClick={() => play(a)}
               className="rounded-2xl p-4 flex flex-col items-center gap-1.5 transition-all active:scale-95"
               style={{
                 background: a.color,
